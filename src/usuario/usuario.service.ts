@@ -2,26 +2,70 @@ import { Injectable } from '@nestjs/common';
 import { CadUsuarioDTO } from './DTO/cadastrar.dto';
 import { ShowUsuarioDTO } from './DTO/mostrar.dto';
 import { AtUsuarioDTO } from './DTO/atualizar.dto';
+import * as admin from 'firebase-admin';
 
 @Injectable()
 export class UsuarioService {
+  private readonly db: FirebaseFirestore.Firestore;
+
+  constructor( ) {
+    this.db = admin.firestore();
+  }
+  private collection = 'User';
+
   async cadastrar(u: CadUsuarioDTO): Promise<ShowUsuarioDTO> {
-    return u;
+    try {
+      const newUsuario = await this.db.collection(this.collection).add(u);
+
+      const showUsuario: ShowUsuarioDTO = newUsuario;
+      return showUsuario;
+    } catch (error) {
+      throw new Error('Erro ao criar: ' + error.message);
+    }
   }
 
   async buscarID(id: string): Promise<ShowUsuarioDTO> {
-    return id;
+    try {
+      const usuarioRef = this.db.collection(this.collection).doc(id);
+      const usuario: ShowUsuarioDTO = await usuarioRef.get();
+      if (!usuario) {
+        return;
+      }
+      return usuario;
+    } catch (error) {
+      throw new Error('Erro ao buscar: ' + error.message);
+    }
   }
 
   async buscarEmail(email: string): Promise<ShowUsuarioDTO> {
-    return email;
+    try {
+      const collectionRef = this.db.collection(this.collection);
+      const snapshot = await collectionRef.where('email', '==', email).get();
+      if (!snapshot) {
+        return;
+      }
+      const showUsuario: ShowUsuarioDTO = snapshot.docs[0].data();
+    } catch (error) {
+      throw new Error('Erro ao buscar: ' + error.message);
+    }
   }
 
   async atualizar(id: string, u: AtUsuarioDTO): Promise<ShowUsuarioDTO> {
-    return u;
+    try {
+      const usuario = await this.db.collection(this.collection).doc(id);
+      await usuario.set({ u }, { merge:true })
+      return await this.buscarID(id);
+    } catch (error) {
+      throw new Error('Erro ao atualizar: ' + error.message);
+    }
   }
 
   async deletar(id: string): Promise<string> {
-    return id;
+    try {
+      await this.db.collection(this.collection).doc(id).delete();
+      return 'successfully deleted';
+    } catch (error) {
+      throw new Error('Erro ao deletar: ' + error.message);
+    }
   }
 }
