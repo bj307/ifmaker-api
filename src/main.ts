@@ -6,11 +6,11 @@ import * as dotenv from 'dotenv';
 async function bootstrap() {
   dotenv.config();
 
-  const serviceAccount = JSON.parse(process.env.FIRE_CONNECT);
+  // const serviceAccount = JSON.parse(process.env.FIRE_CONNECT);
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
+  // admin.initializeApp({
+  //   credential: admin.credential.cert(serviceAccount),
+  // });
 
   const app = await NestFactory.create(AppModule, { cors : true });
   const port = process.env.PORT || 3000;
