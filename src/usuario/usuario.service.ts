@@ -8,7 +8,7 @@ import * as admin from 'firebase-admin';
 export class UsuarioService {
   private readonly db: FirebaseFirestore.Firestore;
 
-  constructor( ) {
+  constructor() {
     this.db = admin.firestore();
   }
   private readonly collection = 'Usuario';
@@ -54,7 +54,7 @@ export class UsuarioService {
   async atualizar(id: string, u: AtUsuarioDTO): Promise<ShowUsuarioDTO> {
     try {
       const usuario = this.db.collection(this.collection).doc(id);
-      await usuario.set({ u }, { merge:true })
+      await usuario.set({ u }, { merge: true });
       return await this.buscarID(id);
     } catch (error) {
       throw new Error('Erro ao atualizar: ' + error.message);
