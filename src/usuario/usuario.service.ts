@@ -11,7 +11,7 @@ export class UsuarioService {
   constructor( ) {
     this.db = admin.firestore();
   }
-  private collection = 'User';
+  private collection = 'Usuario';
 
   async cadastrar(u: CadUsuarioDTO): Promise<ShowUsuarioDTO> {
     try {

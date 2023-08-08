@@ -9,12 +9,12 @@ export class AppService {
 
   private readonly db: FirebaseFirestore.Firestore;
 
-  // constructor() {
-  //   try {
-  //     this.db = admin.firestore();
-  //     console.log('Conexão com o Firebase estabelecida com sucesso!');
-  //   } catch (error) {
-  //     console.error('Erro ao conectar ao Firebase:', error);
-  //   }
-  // }
+  constructor() {
+    try {
+      this.db = admin.firestore();
+      console.log('Conexão com o Firebase estabelecida com sucesso!');
+    } catch (error) {
+      console.error('Erro ao conectar ao Firebase:', error);
+    }
+  }
 }
