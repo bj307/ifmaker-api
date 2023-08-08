@@ -4,5 +4,4 @@ export class CadUsuarioDTO {
   matricula: string;
   senha: string;
   nivel_acesso: string;
-  projetos: string[];
 }

@@ -11,13 +11,13 @@ export class UsuarioService {
   constructor( ) {
     this.db = admin.firestore();
   }
-  private collection = 'Usuario';
+  private readonly collection = 'Usuario';
 
   async cadastrar(u: CadUsuarioDTO): Promise<ShowUsuarioDTO> {
     try {
       const newUsuario = await this.db.collection(this.collection).add(u);
 
-      const showUsuario: ShowUsuarioDTO = newUsuario;
+      const showUsuario: ShowUsuarioDTO = await this.buscarID(newUsuario.id);
       return showUsuario;
     } catch (error) {
       throw new Error('Erro ao criar: ' + error.message);
@@ -27,7 +27,7 @@ export class UsuarioService {
   async buscarID(id: string): Promise<ShowUsuarioDTO> {
     try {
       const usuarioRef = this.db.collection(this.collection).doc(id);
-      const usuario: ShowUsuarioDTO = await usuarioRef.get();
+      const usuario: ShowUsuarioDTO = (await usuarioRef.get()).data();
       if (!usuario) {
         return;
       }
@@ -45,6 +45,7 @@ export class UsuarioService {
         return;
       }
       const showUsuario: ShowUsuarioDTO = snapshot.docs[0].data();
+      return showUsuario;
     } catch (error) {
       throw new Error('Erro ao buscar: ' + error.message);
     }
