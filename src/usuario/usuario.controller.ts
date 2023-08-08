@@ -60,7 +60,7 @@ export class UsuarioController {
 
   @Delete()
   public async deletar(@Query('id') id: string): Promise<string> {
-    const message = await this.deletar(id);
+    const message = await this.usuarioService.deletar(id);
     if (!message) {
       return;
     }
