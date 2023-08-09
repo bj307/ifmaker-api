@@ -6,11 +6,14 @@ import {
   Param,
   Query,
   Body,
+  UseGuards,
 } from '@nestjs/common';
 import { PontoService } from './ponto.service';
 import { PontoDTO } from './DTO/ponto.dto';
+import { UserRoleGuard } from 'src/auth/guards/admin-role.guard';
 
 @Controller('ponto')
+@UseGuards(UserRoleGuard)
 export class PontoController {
   constructor(private readonly pontoService: PontoService) {}
 
