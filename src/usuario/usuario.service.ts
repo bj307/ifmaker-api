@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CadUsuarioDTO } from './DTO/cadastrar.dto';
 import { ShowUsuarioDTO } from './DTO/mostrar.dto';
 import { AtUsuarioDTO } from './DTO/atualizar.dto';
 import * as admin from 'firebase-admin';
+import * as bcrypt from 'bcrypt';
+import { UsuarioDTO } from './DTO/usuario.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -67,6 +69,24 @@ export class UsuarioService {
       return 'successfully deleted';
     } catch (error) {
       throw new Error('Erro ao deletar: ' + error.message);
+    }
+  }
+
+  async checkPassword(senha: string, email: string): Promise<boolean> {
+    try {
+      const collectionRef = this.db.collection(this.collection);
+      const snapshot = await collectionRef.where('email', '==', email).get();
+
+      const usuario = snapshot.docs[0].data();
+
+      const valid = await bcrypt.compare(senha, usuario.senha);
+      if (!valid) {
+        throw new NotFoundException('Senha inválida.');
+      }
+
+      return valid;
+    } catch (error) {
+      throw new Error('Erro ao validar: ' + error.message);
     }
   }
 }

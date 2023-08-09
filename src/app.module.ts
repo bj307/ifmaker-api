@@ -9,6 +9,7 @@ import { MaterialModule } from './material/material.module';
 import { AgendaModule } from './agenda/agenda.module';
 import { AuthModule } from './auth/auth.module';
 import { UserRoleGuard } from './auth/guards/admin-role.guard';
+import { SessaoModule } from './sessao/sessao.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UserRoleGuard } from './auth/guards/admin-role.guard';
     MaterialModule,
     AgendaModule,
     AuthModule,
+    SessaoModule,
   ],
   controllers: [AppController],
   providers: [AppService, UserRoleGuard],

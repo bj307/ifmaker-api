@@ -3,5 +3,6 @@ export class ShowUsuarioDTO {
   nome?: string;
   email?: string;
   matricula?: string;
+  nivel_acesso?: string;
   projetos?: string[];
 }
