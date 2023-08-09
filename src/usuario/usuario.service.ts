@@ -1,10 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CadUsuarioDTO } from './DTO/cadastrar.dto';
 import { ShowUsuarioDTO } from './DTO/mostrar.dto';
 import { AtUsuarioDTO } from './DTO/atualizar.dto';
 import * as admin from 'firebase-admin';
 import * as bcrypt from 'bcrypt';
-import { UsuarioDTO } from './DTO/usuario.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -29,11 +28,19 @@ export class UsuarioService {
   async buscarID(id: string): Promise<ShowUsuarioDTO> {
     try {
       const usuarioRef = this.db.collection(this.collection).doc(id);
-      const usuario: ShowUsuarioDTO = (await usuarioRef.get()).data();
-      if (!usuario) {
+      const snapshot = (await usuarioRef.get()).data();
+      if (!snapshot) {
         return;
       }
-      return usuario;
+      const showUsuario: ShowUsuarioDTO = {
+        id: snapshot.id,
+        nome: snapshot.nome,
+        email: snapshot.email,
+        matricula: snapshot.matricula,
+        nivel_acesso: snapshot.nivel_acesso,
+        projetos: snapshot.projetos,
+      };
+      return showUsuario;
     } catch (error) {
       throw new Error('Erro ao buscar: ' + error.message);
     }
@@ -46,7 +53,14 @@ export class UsuarioService {
       if (!snapshot) {
         return;
       }
-      const showUsuario: ShowUsuarioDTO = snapshot.docs[0].data();
+      const showUsuario: ShowUsuarioDTO = {
+        id: snapshot.docs[0].id,
+        nome: snapshot.docs[0].data().nome,
+        email: snapshot.docs[0].data().email,
+        matricula: snapshot.docs[0].data().matricula,
+        nivel_acesso: snapshot.docs[0].data().nivel_acesso,
+        projetos: snapshot.docs[0].data().projetos,
+      };
       return showUsuario;
     } catch (error) {
       throw new Error('Erro ao buscar: ' + error.message);
@@ -79,12 +93,16 @@ export class UsuarioService {
 
       const usuario = snapshot.docs[0].data();
 
-      const valid = await bcrypt.compare(senha, usuario.senha);
-      if (!valid) {
-        throw new NotFoundException('Senha inválida.');
+      if (usuario.senha === senha) {
+        return true;
       }
 
-      return valid;
+      // const valid = await bcrypt.compare(senha, usuario.senha);
+      // if (!valid) {
+      //   throw new NotFoundException('Senha inválida.');
+      // }
+
+      return false;
     } catch (error) {
       throw new Error('Erro ao validar: ' + error.message);
     }
