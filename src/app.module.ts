@@ -7,10 +7,22 @@ import { PontoModule } from './ponto/ponto.module';
 import { AtualizacaoModule } from './atualizacao/atualizacao.module';
 import { MaterialModule } from './material/material.module';
 import { AgendaModule } from './agenda/agenda.module';
+import { AuthModule } from './auth/auth.module';
+import { UserRoleGuard } from './auth/guards/admin-role.guard';
+import { SessaoModule } from './sessao/sessao.module';
 
 @Module({
-  imports: [UsuarioModule, ProjetoModule, PontoModule, AtualizacaoModule, MaterialModule, AgendaModule],
+  imports: [
+    UsuarioModule,
+    ProjetoModule,
+    PontoModule,
+    AtualizacaoModule,
+    MaterialModule,
+    AgendaModule,
+    AuthModule,
+    SessaoModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, UserRoleGuard],
 })
 export class AppModule {}

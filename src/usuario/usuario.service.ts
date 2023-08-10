@@ -3,12 +3,13 @@ import { CadUsuarioDTO } from './DTO/cadastrar.dto';
 import { ShowUsuarioDTO } from './DTO/mostrar.dto';
 import { AtUsuarioDTO } from './DTO/atualizar.dto';
 import * as admin from 'firebase-admin';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuarioService {
   private readonly db: FirebaseFirestore.Firestore;
 
-  constructor( ) {
+  constructor() {
     this.db = admin.firestore();
   }
   private readonly collection = 'Usuario';
@@ -27,11 +28,19 @@ export class UsuarioService {
   async buscarID(id: string): Promise<ShowUsuarioDTO> {
     try {
       const usuarioRef = this.db.collection(this.collection).doc(id);
-      const usuario: ShowUsuarioDTO = (await usuarioRef.get()).data();
-      if (!usuario) {
+      const snapshot = (await usuarioRef.get()).data();
+      if (!snapshot) {
         return;
       }
-      return usuario;
+      const showUsuario: ShowUsuarioDTO = {
+        id: snapshot.id,
+        nome: snapshot.nome,
+        email: snapshot.email,
+        matricula: snapshot.matricula,
+        nivel_acesso: snapshot.nivel_acesso,
+        projetos: snapshot.projetos,
+      };
+      return showUsuario;
     } catch (error) {
       throw new Error('Erro ao buscar: ' + error.message);
     }
@@ -44,7 +53,14 @@ export class UsuarioService {
       if (!snapshot) {
         return;
       }
-      const showUsuario: ShowUsuarioDTO = snapshot.docs[0].data();
+      const showUsuario: ShowUsuarioDTO = {
+        id: snapshot.docs[0].id,
+        nome: snapshot.docs[0].data().nome,
+        email: snapshot.docs[0].data().email,
+        matricula: snapshot.docs[0].data().matricula,
+        nivel_acesso: snapshot.docs[0].data().nivel_acesso,
+        projetos: snapshot.docs[0].data().projetos,
+      };
       return showUsuario;
     } catch (error) {
       throw new Error('Erro ao buscar: ' + error.message);
@@ -54,7 +70,7 @@ export class UsuarioService {
   async atualizar(id: string, u: AtUsuarioDTO): Promise<ShowUsuarioDTO> {
     try {
       const usuario = this.db.collection(this.collection).doc(id);
-      await usuario.set({ u }, { merge:true })
+      await usuario.set({ u }, { merge: true });
       return await this.buscarID(id);
     } catch (error) {
       throw new Error('Erro ao atualizar: ' + error.message);
@@ -67,6 +83,28 @@ export class UsuarioService {
       return 'successfully deleted';
     } catch (error) {
       throw new Error('Erro ao deletar: ' + error.message);
+    }
+  }
+
+  async checkPassword(senha: string, email: string): Promise<boolean> {
+    try {
+      const collectionRef = this.db.collection(this.collection);
+      const snapshot = await collectionRef.where('email', '==', email).get();
+
+      const usuario = snapshot.docs[0].data();
+
+      if (usuario.senha === senha) {
+        return true;
+      }
+
+      // const valid = await bcrypt.compare(senha, usuario.senha);
+      // if (!valid) {
+      //   throw new NotFoundException('Senha inválida.');
+      // }
+
+      return false;
+    } catch (error) {
+      throw new Error('Erro ao validar: ' + error.message);
     }
   }
 }
