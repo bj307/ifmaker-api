@@ -3,7 +3,7 @@ import { CadUsuarioDTO } from './DTO/cadastrar.dto';
 import { ShowUsuarioDTO } from './DTO/mostrar.dto';
 import { AtUsuarioDTO } from './DTO/atualizar.dto';
 import * as admin from 'firebase-admin';
-import * as bcrypt from 'bcrypt';
+// import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuarioService {
@@ -29,11 +29,12 @@ export class UsuarioService {
     try {
       const usuarioRef = this.db.collection(this.collection).doc(id);
       const snapshot = (await usuarioRef.get()).data();
+      const data = await usuarioRef.get();
       if (!snapshot) {
         return;
       }
       const showUsuario: ShowUsuarioDTO = {
-        id: snapshot.id,
+        id: data.id,
         nome: snapshot.nome,
         email: snapshot.email,
         matricula: snapshot.matricula,
