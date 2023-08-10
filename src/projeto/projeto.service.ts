@@ -25,11 +25,12 @@ export class ProjetoService {
     try {
       const projetoRef = this.db.collection(this.collection).doc(id);
       const snapshot = (await projetoRef.get()).data();
+      const data = await projetoRef.get();
       if (!snapshot) {
         return;
       }
       const projeto: ProjetoDTO = {
-        id: snapshot.id,
+        id: data.id,
         nome: snapshot.nome,
         descricao: snapshot.descricao,
         tipo: snapshot.tipo,
@@ -39,6 +40,17 @@ export class ProjetoService {
       return projeto;
     } catch (error) {
       throw new Error('Erro ao buscar: ' + error.message);
+    }
+  }
+
+  async atualizar(id: string, p: ProjetoDTO): Promise<ProjetoDTO> {
+    try {
+      const projeto = this.db.collection(this.collection).doc(id);
+      const updateData = { ...p };
+      await projeto.update(updateData);
+      return await this.buscarID(projeto.id);
+    } catch (error) {
+      throw new Error('Erro ao atualizar: ' + error.message);
     }
   }
 }

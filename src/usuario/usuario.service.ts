@@ -71,8 +71,9 @@ export class UsuarioService {
   async atualizar(id: string, u: AtUsuarioDTO): Promise<ShowUsuarioDTO> {
     try {
       const usuario = this.db.collection(this.collection).doc(id);
-      await usuario.set({ u }, { merge: true });
-      return await this.buscarID(id);
+      const updateData = { ...u };
+      await usuario.update(updateData);
+      return await this.buscarID(usuario.id);
     } catch (error) {
       throw new Error('Erro ao atualizar: ' + error.message);
     }
