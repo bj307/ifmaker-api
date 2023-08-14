@@ -1,11 +1,13 @@
-import { Controller, Post, Get, Body, Param, Request } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Request, Put, UseGuards } from '@nestjs/common';
 import { ProjetoService } from './projeto.service';
 import { ProjetoDTO } from './DTO/projeto.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtPayload } from 'src/auth/model/jwtpayload.model';
 import { verify } from 'jsonwebtoken';
+import { UserRoleGuard } from 'src/auth/guards/admin-role.guard';
 
 @Controller('projeto')
+@UseGuards(UserRoleGuard)
 export class ProjetoController {
   constructor(
     private readonly projetoService: ProjetoService,
@@ -19,7 +21,6 @@ export class ProjetoController {
   ): Promise<ProjetoDTO> {
     const jwtToken = await this.authService.jwtExtractor(req);
     const jwtPay = verify(jwtToken, process.env.JWT_SECRET) as JwtPayload;
-    p.usuarios.push(jwtPay.userId);
     return await this.projetoService.cadastrar(p);
   }
 
@@ -31,5 +32,13 @@ export class ProjetoController {
     }
 
     return projeto;
+  }
+
+  @Put(":id")
+  public async atualizar(
+    @Param('id') id: string,
+    @Body() p: ProjetoDTO,
+  ): Promise<ProjetoDTO> {
+    return await this.projetoService.atualizar(id, p);
   }
 }

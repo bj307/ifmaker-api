@@ -6,7 +6,7 @@ import {
   Param,
   Query,
   Body,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { PontoService } from './ponto.service';
 import { PontoDTO } from './DTO/ponto.dto';
@@ -63,4 +63,6 @@ export class PontoController {
     }
     return message;
   }
+
+  
 }
