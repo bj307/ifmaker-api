@@ -4,5 +4,6 @@ export class PontoDTO {
   usuario: string;
   data: string;
   hora: string;
+  token: string;
   atualizacao?: string[];
 }
