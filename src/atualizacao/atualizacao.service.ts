@@ -48,6 +48,26 @@ export class AtualizacaoService {
       };
 
       return atualizacao;
-    } catch (error) {}
+    } catch (error) {
+      throw new Error('Erro ao buscar: ' + error.message);
+    }
+  }
+
+  async buscarPorProjeto(id: string): Promise<AtualizacaoDTO[]> {
+    try {
+      const collectionRef = this.db.collection(this.collection);
+      const snapshot = await collectionRef.where('projeto', '==', id).get();
+      if (!snapshot) {
+        return;
+      }
+      const atualizacoes: any[] = [];
+
+      snapshot.docs.forEach((atualizacao) => {
+        atualizacoes.push(atualizacao.data());
+      });
+      return atualizacoes;
+    } catch (error) {
+      throw new Error('Erro ao buscar: ' + error.message);
+    }
   }
 }

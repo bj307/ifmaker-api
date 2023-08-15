@@ -8,7 +8,7 @@ export class SessaoController {
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  public async login(
+  public async login( 
     @Body()
     login: LoginDTO,
   ): Promise<{ id: string; nome: string; jwtToken: string; email: string }> {

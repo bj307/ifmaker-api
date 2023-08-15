@@ -3,6 +3,5 @@ export class AtUsuarioDTO {
   email?: string;
   matricula?: string;
   senha?: string;
-  nivel_acesso?: string;
   projetos?: string[];
 }
