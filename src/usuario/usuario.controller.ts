@@ -8,16 +8,22 @@ import {
   Param,
   Query,
   UseGuards,
+  Request
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { CadUsuarioDTO } from './DTO/cadastrar.dto';
 import { ShowUsuarioDTO } from './DTO/mostrar.dto';
 import { AtUsuarioDTO } from './DTO/atualizar.dto';
 import { UserRoleGuard } from 'src/auth/guards/admin-role.guard';
+import { AuthService } from 'src/auth/auth.service';
+import { verify } from 'jsonwebtoken';
+import { JwtPayload } from 'src/auth/model/jwtpayload.model';
 
 @Controller('usuario')
 export class UsuarioController {
-  constructor(private readonly usuarioService: UsuarioService) {}
+  constructor(private readonly usuarioService: UsuarioService,
+    private readonly authService: AuthService,
+    ) {}
 
   @Post('novo')
   @UseGuards(UserRoleGuard)
@@ -51,22 +57,47 @@ export class UsuarioController {
 
   @Put(':id')
   public async atualizar(
+    @Request() req,
     @Param('id') id: string,
     @Body() u: AtUsuarioDTO,
   ): Promise<ShowUsuarioDTO> {
+    const jwtToken = await this.authService.jwtExtractor(req);
+    const jwtPay = verify(jwtToken, process.env.JWT_SECRET) as JwtPayload;
+    await this.authService.validateUser(jwtPay);
+    if (id !== jwtPay.userId) {
+      return;
+    }
+
     const usuario: ShowUsuarioDTO = await this.usuarioService.atualizar(id, u);
     if (!usuario) {
       return;
     }
+    
     return usuario;
   }
 
   @Delete()
-  public async deletar(@Query('id') id: string): Promise<string> {
+  public async deletar(@Request() req, @Query('id') id: string): Promise<string> {
+    const jwtToken = await this.authService.jwtExtractor(req);
+    const jwtPay = verify(jwtToken, process.env.JWT_SECRET) as JwtPayload;
+    await this.authService.validateUser(jwtPay);
+    if (id !== jwtPay.userId) {
+      return;
+    }
+    
     const message = await this.usuarioService.deletar(id);
     if (!message) {
       return;
     }
     return message;
+  }
+
+  @Put(':id')
+  @UseGuards(UserRoleGuard)
+  public async alterarNivelAcesso(@Param('id') id: string, @Body() acesso: string) {
+    if (acesso !== 'admin' && acesso !== 'member') {
+      return;
+    }
+    return await this.usuarioService.alterarNivelAcesso(id, acesso);
   }
 }

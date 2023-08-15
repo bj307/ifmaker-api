@@ -105,8 +105,17 @@ export class UsuarioService {
       // }
 
       return false;
-    } catch (error) {
+    } catch (error) { 
       throw new Error('Erro ao validar: ' + error.message);
+    }
+  }
+
+  async alterarNivelAcesso(id: string, acesso: string) {
+    try {
+      const usuario = this.db.collection(this.collection).doc(id);
+      return await this.buscarID(acesso);
+    } catch (error) {
+      throw new Error('Erro ao atualizar: ' + error.message);
     }
   }
 }
