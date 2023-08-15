@@ -1,5 +1,4 @@
-export class MaterialDTO {
-  id: string;
+export class NovoMaterialDTO {
   nome: string;
   quantidade: number;
   detalhes: string;

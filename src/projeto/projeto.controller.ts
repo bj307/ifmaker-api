@@ -1,4 +1,13 @@
-import { Controller, Post, Get, Body, Param, Request, Put, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  Request,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { ProjetoService } from './projeto.service';
 import { ProjetoDTO } from './DTO/projeto.dto';
 import { AuthService } from 'src/auth/auth.service';
@@ -7,7 +16,6 @@ import { verify } from 'jsonwebtoken';
 import { UserRoleGuard } from 'src/auth/guards/admin-role.guard';
 
 @Controller('projeto')
-@UseGuards(UserRoleGuard)
 export class ProjetoController {
   constructor(
     private readonly projetoService: ProjetoService,
@@ -15,6 +23,7 @@ export class ProjetoController {
   ) {}
 
   @Post('novo')
+  @UseGuards(UserRoleGuard)
   public async cadastrar(
     @Request() req,
     @Body() p: ProjetoDTO,
@@ -34,7 +43,8 @@ export class ProjetoController {
     return projeto;
   }
 
-  @Put(":id")
+  @Put(':id')
+  @UseGuards(UserRoleGuard)
   public async atualizar(
     @Param('id') id: string,
     @Body() p: ProjetoDTO,

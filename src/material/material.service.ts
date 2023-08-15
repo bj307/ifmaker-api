@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { MaterialDTO } from './DTO/material.dto';
+import { NovoMaterialDTO } from './DTO/novo.dto';
+import { AtualizarMaterialDTO } from './DTO/atualizar.dto';
 
 @Injectable()
 export class MaterialService {
@@ -11,7 +13,7 @@ export class MaterialService {
   }
   private readonly collection = 'Materiais';
 
-  async cadastrar(m: MaterialDTO): Promise<MaterialDTO> {
+  async cadastrar(m: NovoMaterialDTO): Promise<MaterialDTO> {
     try {
       const newMaterial = await this.db.collection(this.collection).add(m);
       return await this.buscarID(newMaterial.id);
@@ -41,12 +43,18 @@ export class MaterialService {
     }
   }
 
-  async atualizar(id: string, m: MaterialDTO): Promise<MaterialDTO> {
+  async atualizar(id: string, m: AtualizarMaterialDTO): Promise<MaterialDTO> {
     try {
-      const material = this.db.collection(this.collection).doc(id);
+      const materialRef = this.db.collection(this.collection).doc(id);
+      const material = this.buscarID(materialRef.id);
       const updateData = { ...m };
-      await material.update(updateData);
-      return await this.buscarID(material.id);
+
+      if (updateData.quantidade) {
+        updateData.quantidade =
+          (await material).quantidade - updateData.quantidade;
+      }
+      await materialRef.update(updateData);
+      return await this.buscarID(materialRef.id);
     } catch (error) {
       throw new Error('Erro ao atualizar: ' + error.message);
     }

@@ -7,17 +7,20 @@ import {
   Body,
   Param,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { CadUsuarioDTO } from './DTO/cadastrar.dto';
 import { ShowUsuarioDTO } from './DTO/mostrar.dto';
 import { AtUsuarioDTO } from './DTO/atualizar.dto';
+import { UserRoleGuard } from 'src/auth/guards/admin-role.guard';
 
 @Controller('usuario')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
   @Post('novo')
+  @UseGuards(UserRoleGuard)
   public async cadastro(@Body() u: CadUsuarioDTO): Promise<ShowUsuarioDTO> {
     const usuario: ShowUsuarioDTO = await this.usuarioService.cadastrar(u);
     if (!usuario) {
