@@ -3,6 +3,7 @@ import { CadUsuarioDTO } from './DTO/cadastrar.dto';
 import { ShowUsuarioDTO } from './DTO/mostrar.dto';
 import { AtUsuarioDTO } from './DTO/atualizar.dto';
 import * as admin from 'firebase-admin';
+import { AcessoDTO } from './DTO/nivelacesso.dto';
 // import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -71,8 +72,7 @@ export class UsuarioService {
   async atualizar(id: string, u: AtUsuarioDTO): Promise<ShowUsuarioDTO> {
     try {
       const usuario = this.db.collection(this.collection).doc(id);
-      const updateData = { ...u };
-      await usuario.update(updateData);
+      await usuario.update({ ...u });
       return await this.buscarID(usuario.id);
     } catch (error) {
       throw new Error('Erro ao atualizar: ' + error.message);
@@ -105,15 +105,16 @@ export class UsuarioService {
       // }
 
       return false;
-    } catch (error) { 
+    } catch (error) {
       throw new Error('Erro ao validar: ' + error.message);
     }
   }
 
-  async alterarNivelAcesso(id: string, acesso: string) {
+  async alterarNivelAcesso(id: string, acesso: AcessoDTO) {
     try {
       const usuario = this.db.collection(this.collection).doc(id);
-      return await this.buscarID(acesso);
+      await usuario.update({ ...acesso });
+      return await this.buscarID(id);
     } catch (error) {
       throw new Error('Erro ao atualizar: ' + error.message);
     }

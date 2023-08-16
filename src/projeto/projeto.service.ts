@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { ProjetoDTO } from './DTO/projeto.dto';
+import { AtualizarProjetoDTO } from './DTO/atualizarprojeto.dto';
 
 @Injectable()
 export class ProjetoService {
@@ -43,10 +44,15 @@ export class ProjetoService {
     }
   }
 
-  async atualizar(id: string, p: ProjetoDTO): Promise<ProjetoDTO> {
+  async atualizar(id: string, p: AtualizarProjetoDTO): Promise<ProjetoDTO> {
     try {
       const projeto = this.db.collection(this.collection).doc(id);
       const updateData = { ...p };
+      if (updateData.atualizacao) {
+        const projeto = await this.buscarID(id);
+        projeto.atualizacao.forEach((at) => updateData.atualizacao.push(at));
+      }
+
       await projeto.update(updateData);
       return await this.buscarID(projeto.id);
     } catch (error) {

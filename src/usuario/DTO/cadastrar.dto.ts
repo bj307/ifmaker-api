@@ -3,5 +3,5 @@ export class CadUsuarioDTO {
   email: string;
   matricula: string;
   senha: string;
-  nivel_acesso: string;
+  nivel_acesso: 'admin' | 'member';
 }

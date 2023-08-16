@@ -16,6 +16,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { verify } from 'jsonwebtoken';
 import { RegistrarDTO } from './DTO/registrar.dto';
 import { JwtPayload, QrPayload } from 'src/auth/model/jwtpayload.model';
+import { AtualizarPontoDTO } from './DTO/atualizaponto.dto';
 
 @Controller('ponto')
 export class PontoController {
@@ -30,20 +31,27 @@ export class PontoController {
     const jwtPay = verify(jwtToken, process.env.JWT_SECRET) as JwtPayload;
 
     const payload = verify(p.token, process.env.QR_CODE_SECRET) as QrPayload;
-    const pontoDTO: PontoDTO = {
-      data: payload.data,
-      token: p.token,
-      hora: payload.hora,
-      tipo: p.tipo,
-      atualizacao: p.atualizacao || null,
-      usuario: jwtPay.userId,
-    };
-    console.log(pontoDTO);
-    const ponto = await this.pontoService.registrar(pontoDTO);
-    if (!ponto) {
-      return;
+
+    const pontoExiste = await this.pontoService.verificarPontoExistente(
+      jwtPay.userId,
+    );
+    if (pontoExiste !== null) {
+      const atualizaDTO: AtualizarPontoDTO = {
+        saida: payload.hora,
+        atualizacao: p.atualizacao,
+      };
+      return await this.pontoService.saida(pontoExiste, atualizaDTO);
+    } else {
+      const pontoDTO: PontoDTO = {
+        data: payload.data,
+        token: p.token,
+        entrada: payload.hora,
+        saida: null,
+        atualizacao: p.atualizacao || null,
+        usuario: jwtPay.userId,
+      };
+      return await this.pontoService.entrada(pontoDTO);
     }
-    return ponto;
   }
 
   @Post('gerar-qr')

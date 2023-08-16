@@ -27,7 +27,7 @@ export class MaterialService {
       const materialRef = this.db.collection(this.collection).doc(id);
       const snapshot = (await materialRef.get()).data();
       const data = await materialRef.get();
-      if (!snapshot) {
+      if (snapshot.empty) {
         return;
       }
 
@@ -46,14 +46,7 @@ export class MaterialService {
   async atualizar(id: string, m: AtualizarMaterialDTO): Promise<MaterialDTO> {
     try {
       const materialRef = this.db.collection(this.collection).doc(id);
-      const material = this.buscarID(materialRef.id);
-      const updateData = { ...m };
-
-      if (updateData.quantidade) {
-        updateData.quantidade =
-          (await material).quantidade - updateData.quantidade;
-      }
-      await materialRef.update(updateData);
+      await materialRef.update({ ...m });
       return await this.buscarID(materialRef.id);
     } catch (error) {
       throw new Error('Erro ao atualizar: ' + error.message);

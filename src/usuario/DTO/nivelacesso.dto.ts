@@ -1,3 +1,3 @@
 export class AcessoDTO {
-    nivel_acesso: string;
+  nivel_acesso: string;
 }

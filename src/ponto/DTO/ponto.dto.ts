@@ -1,9 +1,9 @@
 export class PontoDTO {
   id?: string;
-  tipo: string;
-  usuario: string;
   data: string;
-  hora: string;
+  entrada: string | null;
+  saida: string | null;
+  usuario: string;
   token: string;
   atualizacao?: string[];
 }

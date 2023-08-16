@@ -1,7 +1,5 @@
-import { AtualizarQuantidadeDTO } from 'src/material/DTO/quantidade.dto';
-
 export class AtualizarDTO {
+  usuario?: string;
   projeto: string;
   detalhes: string;
-  material: AtualizarQuantidadeDTO[];
 }

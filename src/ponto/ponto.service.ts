@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { PontoDTO } from './DTO/ponto.dto';
 import { sign } from 'jsonwebtoken';
+import { AtualizarPontoDTO } from './DTO/atualizaponto.dto';
 
 @Injectable()
 export class PontoService {
@@ -13,10 +14,21 @@ export class PontoService {
 
   private readonly collection = 'Ponto';
 
-  async registrar(p: PontoDTO) {
+  async entrada(p: PontoDTO) {
     try {
       const ponto = await this.db.collection(this.collection).add(p);
       return this.buscarID(ponto.id);
+    } catch (error) {
+      throw new Error('Erro ao registrar: ' + error.message);
+    }
+  }
+
+  async saida(id: string, p: AtualizarPontoDTO) {
+    try {
+      const ponto = this.db.collection(this.collection).doc(id);
+      console.log(ponto);
+      await ponto.update({ ...p });
+      return await this.buscarID(id);
     } catch (error) {
       throw new Error('Erro ao registrar: ' + error.message);
     }
@@ -32,7 +44,7 @@ export class PontoService {
     try {
       const pontoRef = this.db.collection(this.collection).doc(id);
       const ponto = (await pontoRef.get()).data();
-      if (!ponto) {
+      if (ponto.empty) {
         return;
       }
       return ponto;
@@ -45,7 +57,7 @@ export class PontoService {
     try {
       const collectionRef = this.db.collection(this.collection);
       const snapshot = await collectionRef.where('usuario', '==', id).get();
-      if (!snapshot) {
+      if (snapshot.empty) {
         return;
       }
       const pontos: any[] = [];
@@ -63,7 +75,7 @@ export class PontoService {
     try {
       const collectionRef = this.db.collection(this.collection);
       const snapshot = await collectionRef.where('tipo', '==', tipo).get();
-      if (!snapshot) {
+      if (snapshot.empty) {
         return;
       }
       const pontos: any[] = [];
@@ -83,6 +95,22 @@ export class PontoService {
       return 'successfully deleted';
     } catch (error) {
       throw new Error('Erro ao deletar: ' + error.message);
+    }
+  }
+
+  async verificarPontoExistente(id: string) {
+    try {
+      const collectionRef = this.db.collection(this.collection);
+      const snapshot = await collectionRef
+        .where('usuario', '==', id)
+        .where('saida', '==', null)
+        .get();
+      if (snapshot.empty) {
+        return null;
+      }
+      return snapshot.docs[0].id;
+    } catch (error) {
+      throw new Error('Erro ao buscar: ' + error.message);
     }
   }
 }
