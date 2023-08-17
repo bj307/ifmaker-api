@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CadUsuarioDTO } from './DTO/cadastrar.dto';
 import { ShowUsuarioDTO } from './DTO/mostrar.dto';
 import { AtUsuarioDTO } from './DTO/atualizar.dto';
 import * as admin from 'firebase-admin';
 import { AcessoDTO } from './DTO/nivelacesso.dto';
-// import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuarioService {
@@ -17,6 +17,7 @@ export class UsuarioService {
 
   async cadastrar(u: CadUsuarioDTO): Promise<ShowUsuarioDTO> {
     try {
+      u.senha = await bcrypt.hash(u.senha, 10);
       const newUsuario = await this.db.collection(this.collection).add(u);
 
       const showUsuario: ShowUsuarioDTO = await this.buscarID(newUsuario.id);
@@ -52,7 +53,7 @@ export class UsuarioService {
     try {
       const collectionRef = this.db.collection(this.collection);
       const snapshot = await collectionRef.where('email', '==', email).get();
-      if (!snapshot) {
+      if (snapshot.empty) {
         return;
       }
       const showUsuario: ShowUsuarioDTO = {
@@ -72,6 +73,7 @@ export class UsuarioService {
   async atualizar(id: string, u: AtUsuarioDTO): Promise<ShowUsuarioDTO> {
     try {
       const usuario = this.db.collection(this.collection).doc(id);
+      u.senha = await bcrypt.hash(u.senha, 10);
       await usuario.update({ ...u });
       return await this.buscarID(usuario.id);
     } catch (error) {
@@ -99,10 +101,10 @@ export class UsuarioService {
         return true;
       }
 
-      // const valid = await bcrypt.compare(senha, usuario.senha);
-      // if (!valid) {
-      //   throw new NotFoundException('Senha inválida.');
-      // }
+      const valid = await bcrypt.compare(senha, usuario.senha);
+      if (!valid) {
+        throw new NotFoundException('Senha inválida.');
+      }
 
       return false;
     } catch (error) {

@@ -61,7 +61,7 @@ export class AtualizacaoService {
     try {
       const collectionRef = this.db.collection(this.collection);
       const snapshot = await collectionRef.where('projeto', '==', id).get();
-      if (!snapshot) {
+      if (snapshot.empty) {
         return;
       }
       const atualizacoes: AtualizacaoDTO[] = [];
@@ -73,6 +73,15 @@ export class AtualizacaoService {
       return atualizacoes;
     } catch (error) {
       throw new Error('Erro ao buscar: ' + error.message);
+    }
+  }
+
+  async deletar(id: string): Promise<string> {
+    try {
+      await this.db.collection(this.collection).doc(id).delete();
+      return 'successfully deleted';
+    } catch (error) {
+      throw new Error('Erro ao deletar: ' + error.message);
     }
   }
 }

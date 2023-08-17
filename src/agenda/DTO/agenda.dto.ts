@@ -2,5 +2,7 @@ export class AgendaDTO {
   id?: string;
   titulo: string;
   descricao: string;
-  data: string;
+  dia: number;
+  mes: number;
+  ano: number;
 }
