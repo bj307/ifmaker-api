@@ -97,16 +97,9 @@ export class UsuarioService {
 
       const usuario = snapshot.docs[0].data();
 
-      if (usuario.senha === senha) {
-        return true;
-      }
-
       const valid = await bcrypt.compare(senha, usuario.senha);
-      if (!valid) {
-        throw new NotFoundException('Senha inválida.');
-      }
 
-      return false;
+      return valid;
     } catch (error) {
       throw new Error('Erro ao validar: ' + error.message);
     }

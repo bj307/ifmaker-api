@@ -13,7 +13,7 @@ export class SessaoService {
   async login(
     l: LoginDTO,
   ): Promise<{ id: string; nome: string; jwtToken: string; email: string }> {
-    const valid = this.usuarioService.checkPassword(l.senha, l.email);
+    const valid = await this.usuarioService.checkPassword(l.senha, l.email);
     if (!valid) {
       throw new NotFoundException('Credenciais inválidas.');
     }
