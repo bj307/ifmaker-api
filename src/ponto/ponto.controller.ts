@@ -68,7 +68,7 @@ export class PontoController {
     }
   }
 
-  @Post('gerar-qr')
+  @Post('gerar-token')
   @UseGuards(UserRoleGuard)
   public async gerarCode(): Promise<string> {
     return await this.pontoService.gerarCode();
