@@ -3,7 +3,3 @@ export interface JwtPayload {
   nivel_acesso: string;
 }
 
-export interface QrPayload {
-  data: string;
-  hora: string;
-}

@@ -4,6 +4,6 @@ export class PontoDTO {
   entrada: string | null;
   saida: string | null;
   usuario: string;
-  token: string;
+  codigo: string;
   atualizacao?: string[];
 }

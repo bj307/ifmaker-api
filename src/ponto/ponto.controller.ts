@@ -8,6 +8,7 @@ import {
   Body,
   UseGuards,
   Request,
+  NotFoundException,
 } from '@nestjs/common';
 import { PontoService } from './ponto.service';
 import { PontoDTO } from './DTO/ponto.dto';
@@ -15,7 +16,7 @@ import { UserRoleGuard } from 'src/auth/guards/admin-role.guard';
 import { AuthService } from 'src/auth/auth.service';
 import { verify } from 'jsonwebtoken';
 import { RegistrarDTO } from './DTO/registrar.dto';
-import { JwtPayload, QrPayload } from 'src/auth/model/jwtpayload.model';
+import { JwtPayload } from 'src/auth/model/jwtpayload.model';
 import { AtualizarPontoDTO } from './DTO/atualizaponto.dto';
 
 @Controller('ponto')
@@ -30,22 +31,35 @@ export class PontoController {
     const jwtToken = await this.authService.jwtExtractor(req);
     const jwtPay = verify(jwtToken, process.env.JWT_SECRET) as JwtPayload;
 
-    const payload = verify(p.token, process.env.QR_CODE_SECRET) as QrPayload;
+    const validCode = await this.pontoService.validarCode(p.codigo);
+
+    if(!validCode) {
+      throw new NotFoundException('Código invalido ou expirado.');
+    }
 
     const pontoExiste = await this.pontoService.verificarPontoExistente(
       jwtPay.userId,
     );
     if (pontoExiste !== null) {
+      const hr = new Date().getHours().toString();
+      const min = new Date().getMinutes().toString();
+      const seg = new Date().getSeconds().toString();
       const atualizaDTO: AtualizarPontoDTO = {
-        saida: payload.hora,
+        saida: `${hr}:${min}:${seg}`,
         atualizacao: p.atualizacao,
       };
       return await this.pontoService.saida(pontoExiste, atualizaDTO);
     } else {
+      const hr = new Date().getHours().toString();
+      const min = new Date().getMinutes().toString();
+      const seg = new Date().getSeconds().toString();
+      const dia = new Date().getDate().toString().padStart(2, '0');
+      const mes = new Date().getMonth().toString().padStart(2, '0');
+      const ano = new Date().getFullYear();
       const pontoDTO: PontoDTO = {
-        data: payload.data,
-        token: p.token,
-        entrada: payload.hora,
+        data: `${dia}/${mes}/${ano}`,
+        codigo: p.codigo,
+        entrada: `${hr}:${min}:${seg}`,
         saida: null,
         atualizacao: p.atualizacao || null,
         usuario: jwtPay.userId,
@@ -56,20 +70,8 @@ export class PontoController {
 
   @Post('gerar-token')
   @UseGuards(UserRoleGuard)
-  public async gerarQr(): Promise<string> {
-    const dia = new Date().getDate().toString().padStart(2, '0');
-    const mes = new Date().getMonth().toString().padStart(2, '0');
-    const ano = new Date().getFullYear();
-    const data = `${dia}/${mes}/${ano}`;
-    const hr = new Date().getHours().toString();
-    const min = new Date().getMinutes().toString();
-    const seg = new Date().getSeconds().toString();
-    const hora = `${hr}:${min}:${seg}`;
-    const token = await this.pontoService.gerarQr(data, hora);
-    if (!token) {
-      return;
-    }
-    return token;
+  public async gerarCode(): Promise<string> {
+    return await this.pontoService.gerarCode();
   }
 
   @Get(':id')

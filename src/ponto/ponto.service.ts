@@ -26,18 +26,72 @@ export class PontoService {
   async saida(id: string, p: AtualizarPontoDTO) {
     try {
       const ponto = this.db.collection(this.collection).doc(id);
-      console.log(ponto);
-      await ponto.update({ ...p });
+      const updateData = {};
+      for (const key in p) {
+        if (key === 'atualizacao') {
+          if (p[key] !== undefined) {
+            updateData[key] = p[key];
+          }
+        } else {
+          updateData[key] = p[key];
+        }
+      }
+      await ponto.update(updateData);
       return await this.buscarID(id);
     } catch (error) {
       throw new Error('Erro ao registrar: ' + error.message);
     }
   }
 
-  async gerarQr(data: string, hora: string): Promise<string> {
-    return sign({ data, hora }, process.env.QR_CODE_SECRET, {
-      expiresIn: process.env.QR_CODE_EXPIRATION,
-    });
+  async gerarCode(): Promise<string> {
+    const codeLength = 6;
+    const characters = '0123456789';
+    let code = '';
+
+    for (let i = 0; i < codeLength; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      code += characters[randomIndex];
+    }
+
+    const dataCode = {
+      codigo: code,
+      expiresAt: new Date(Date.now() + 180000)
+    }
+
+    await this.db.collection("Code").add(dataCode);
+
+    return code;
+  }
+
+  async validarCode(code: string): Promise<boolean> {
+    try {
+      const collectionRef = this.db.collection("Code");
+      const snapshot = await collectionRef.where('codigo', '==', code).get();
+      if (snapshot.empty) {
+        return;
+      }
+
+      const codigo = snapshot.docs[0].data();
+      const expiresAtTimestamp = codigo.expiresAt._seconds * 1000;
+
+      const expiresAtDate = new Date(expiresAtTimestamp);
+
+      if (expiresAtDate > new Date()) {
+        await this.removerCode(snapshot.docs[0].id);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      throw new Error('Erro ao buscar: ' + error.message);
+    }
+  }
+
+  async removerCode(id: string) {
+    try {
+      await this.db.collection("Code").doc(id).delete();
+    } catch (error) {
+      throw new Error('Erro ao deletar: ' + error.message);
+    }
   }
 
   async buscarID(id: string) {

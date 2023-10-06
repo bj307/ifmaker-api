@@ -1,4 +1,4 @@
 export class RegistrarDTO {
-  token: string;
+  codigo: string;
   atualizacao?: string[];
 }
