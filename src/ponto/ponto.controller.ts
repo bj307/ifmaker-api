@@ -54,7 +54,7 @@ export class PontoController {
     }
   }
 
-  @Post('gerar-qr')
+  @Post('gerar-token')
   @UseGuards(UserRoleGuard)
   public async gerarQr(): Promise<string> {
     const dia = new Date().getDate().toString().padStart(2, '0');

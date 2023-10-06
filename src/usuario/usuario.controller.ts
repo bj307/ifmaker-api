@@ -111,4 +111,11 @@ export class UsuarioController {
     }
     return await this.usuarioService.alterarNivelAcesso(user, acesso);
   }
+
+  @Post('verify')
+  public async validarJwt(@Request() req) {
+    const jwtToken = await this.authService.jwtExtractor(req);
+    const jwtPay = verify(jwtToken, process.env.JWT_SECRET) as JwtPayload;
+    return await this.authService.validateUser(jwtPay);
+  }
 }

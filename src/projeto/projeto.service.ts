@@ -44,6 +44,33 @@ export class ProjetoService {
     }
   }
 
+  async buscarMeusProjetos(id: string): Promise<ProjetoDTO[]> {
+    try {
+      const collectionRef = this.db.collection(this.collection);
+      const snapshot = await collectionRef
+        .where('usuarios', 'array-contains', id)
+        .get();
+      
+        const projetos[]: ProjetoDTO[] = [];
+
+      snapshot.forEach((element) => {
+        const projeto: ProjetoDTO = {
+          id: element.id,
+          nome: element.data().nome,
+          descricao: element.data().descricao,
+          tipo: element.data().tipo,
+          usuarios: element.data().usuarios,
+          atualizacao: element.data().atualizacao,
+        };
+        projetos.add(projeto);
+      });
+
+      return projetos;
+    } catch (error) {
+      throw new Error('Erro ao buscar: ' + error.message);
+    }
+  }
+
   async atualizar(id: string, p: AtualizarProjetoDTO): Promise<ProjetoDTO> {
     try {
       const projeto = this.db.collection(this.collection).doc(id);
