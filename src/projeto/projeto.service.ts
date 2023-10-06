@@ -50,8 +50,8 @@ export class ProjetoService {
       const snapshot = await collectionRef
         .where('usuarios', 'array-contains', id)
         .get();
-      
-        const projetos[]: ProjetoDTO[] = [];
+
+      const projetos: ProjetoDTO[] = [];
 
       snapshot.forEach((element) => {
         const projeto: ProjetoDTO = {
@@ -62,7 +62,7 @@ export class ProjetoService {
           usuarios: element.data().usuarios,
           atualizacao: element.data().atualizacao,
         };
-        projetos.add(projeto);
+        projetos.push(projeto);
       });
 
       return projetos;
