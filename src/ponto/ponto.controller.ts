@@ -33,7 +33,7 @@ export class PontoController {
 
     const validCode = await this.pontoService.validarCode(p.codigo);
 
-    if(!validCode) {
+    if (!validCode) {
       throw new NotFoundException('Código invalido ou expirado.');
     }
 
@@ -111,5 +111,18 @@ export class PontoController {
       return;
     }
     return message;
+  }
+
+  @Get('status/:id')
+  public async retornaStatus(
+    @Param('id') id: string,
+  ): Promise<{ status: string }> {
+    const pontoExiste = await this.pontoService.verificarPontoExistente(id);
+
+    if (pontoExiste !== null) {
+      return { status: 'Fechada' };
+    } else {
+      return { status: 'Aberta' };
+    }
   }
 }

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { PontoDTO } from './DTO/ponto.dto';
-import { sign } from 'jsonwebtoken';
 import { AtualizarPontoDTO } from './DTO/atualizaponto.dto';
 
 @Injectable()
@@ -19,7 +18,7 @@ export class PontoService {
       const ponto = await this.db.collection(this.collection).add(p);
       return this.buscarID(ponto.id);
     } catch (error) {
-      throw new Error('Erro ao registrar: ' + error.message);
+      return error;
     }
   }
 
@@ -39,7 +38,7 @@ export class PontoService {
       await ponto.update(updateData);
       return await this.buscarID(id);
     } catch (error) {
-      throw new Error('Erro ao registrar: ' + error.message);
+      return error;
     }
   }
 
@@ -55,17 +54,17 @@ export class PontoService {
 
     const dataCode = {
       codigo: code,
-      expiresAt: new Date(Date.now() + 180000)
-    }
+      expiresAt: new Date(Date.now() + 180000),
+    };
 
-    await this.db.collection("Code").add(dataCode);
+    await this.db.collection('Code').add(dataCode);
 
     return code;
   }
 
   async validarCode(code: string): Promise<boolean> {
     try {
-      const collectionRef = this.db.collection("Code");
+      const collectionRef = this.db.collection('Code');
       const snapshot = await collectionRef.where('codigo', '==', code).get();
       if (snapshot.empty) {
         return;
@@ -82,15 +81,15 @@ export class PontoService {
       }
       return false;
     } catch (error) {
-      throw new Error('Erro ao buscar: ' + error.message);
+      return error;
     }
   }
 
   async removerCode(id: string) {
     try {
-      await this.db.collection("Code").doc(id).delete();
+      await this.db.collection('Code').doc(id).delete();
     } catch (error) {
-      throw new Error('Erro ao deletar: ' + error.message);
+      return error;
     }
   }
 
@@ -103,7 +102,7 @@ export class PontoService {
       }
       return ponto;
     } catch (error) {
-      throw new Error('Erro ao buscar: ' + error.message);
+      return error;
     }
   }
 
@@ -121,7 +120,7 @@ export class PontoService {
       });
       return pontos;
     } catch (error) {
-      throw new Error('Erro ao buscar: ' + error.message);
+      return error;
     }
   }
 
@@ -139,7 +138,7 @@ export class PontoService {
       });
       return pontos;
     } catch (error) {
-      throw new Error('Erro ao buscar: ' + error.message);
+      return error;
     }
   }
 
@@ -148,7 +147,7 @@ export class PontoService {
       await this.db.collection(this.collection).doc(id).delete();
       return 'successfully deleted';
     } catch (error) {
-      throw new Error('Erro ao deletar: ' + error.message);
+      return error;
     }
   }
 
@@ -164,7 +163,7 @@ export class PontoService {
       }
       return snapshot.docs[0].id;
     } catch (error) {
-      throw new Error('Erro ao buscar: ' + error.message);
+      return error;
     }
   }
 }
