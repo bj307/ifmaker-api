@@ -39,13 +39,10 @@ export class ProjetoController {
     return projeto;
   }
 
-  @Get('meus-projetos')
-  public async buscarMeusProjetos(@Request() req): Promise<ProjetoDTO[]> {
-    const jwtToken = await this.authService.jwtExtractor(req);
-    const jwtPay = verify(jwtToken, process.env.JWT_SECRET) as JwtPayload;
-    await this.authService.validateUser(jwtPay);
+  @Get('meus-projetos/:id')
+  public async buscarMeusProjetos(@Param('id') id: string): Promise<ProjetoDTO[]> {
     const projetos = await this.projetoService.buscarMeusProjetos(
-      jwtPay.userId,
+      id
     );
 
     return projetos;

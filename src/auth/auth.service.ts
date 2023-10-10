@@ -40,7 +40,7 @@ export class AuthService {
     const authHeader = request.body.headers.Authorization;
 
     if (!authHeader) {
-      throw new BadRequestException('Bad request. Token inválido!');
+      throw new BadRequestException('Bad request. Token inválido! esse bad aqui');
     }
 
     const [, token] = authHeader.split(' ');
