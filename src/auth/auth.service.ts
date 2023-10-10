@@ -37,7 +37,7 @@ export class AuthService {
   }
 
   public async jwtExtractor(request: Request) {
-    const authHeader = request.headers.authorization;
+    const authHeader = request.body.headers.Authorization;
 
     if (!authHeader) {
       throw new BadRequestException('Bad request. Token inválido!');
@@ -49,7 +49,7 @@ export class AuthService {
   }
 
   private static jwtExtractorr(request: Request): string {
-    const authHeader = request.headers.authorization;
+    const authHeader = request.body.headers.Authorization;
 
     if (!authHeader) {
       throw new BadRequestException('Bad request. Token inválido!');
