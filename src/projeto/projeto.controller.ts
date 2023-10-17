@@ -13,8 +13,6 @@ import { ProjetoDTO } from './DTO/projeto.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { UserRoleGuard } from 'src/auth/guards/admin-role.guard';
 import { AtualizarProjetoDTO } from './DTO/atualizarprojeto.dto';
-import { JwtPayload } from 'src/auth/model/jwtpayload.model';
-import { verify } from 'jsonwebtoken';
 
 @Controller('projeto')
 export class ProjetoController {
@@ -44,6 +42,13 @@ export class ProjetoController {
     const projetos = await this.projetoService.buscarMeusProjetos(
       id
     );
+
+    return projetos;
+  }
+
+  @Get('todos')
+  public async buscarTodosProjetos(): Promise<ProjetoDTO[]> {
+    const projetos = await this.projetoService.buscarTodosProjetos();
 
     return projetos;
   }
