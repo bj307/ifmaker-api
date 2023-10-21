@@ -3,6 +3,4 @@ export class AtualizacaoDTO {
   projeto: string;
   detalhes: string;
   usuario: string;
-  data: string;
-  hora: string;
 }

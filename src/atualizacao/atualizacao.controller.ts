@@ -25,19 +25,17 @@ export class AtualizacaoController {
   @Post('inserir')
   public async atualizar(
     @Request() req,
-    @Body() a: AtualizarDTO[],
-  ): Promise<AtualizacaoDTO[]> {
+    @Body() a: AtualizarDTO,
+  ): Promise<AtualizacaoDTO> {
     const jwtToken = await this.authService.jwtExtractor(req);
     const jwtPay = verify(jwtToken, process.env.JWT_SECRET) as JwtPayload;
-    for (const at of a) {
-      at.usuario = jwtPay.userId;
-    }
-    const atualizacoes = await this.atualizacaoService.atualizar(a);
-    if (!atualizacoes) {
+
+    const atualizacao = await this.atualizacaoService.atualizar(a);
+    if (!atualizacao) {
       return;
     }
 
-    return atualizacoes;
+    return atualizacao;
   }
 
   @Get(':id')

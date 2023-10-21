@@ -100,9 +100,13 @@ export class ProjetoService {
     try {
       const projeto = this.db.collection(this.collection).doc(id);
       const updateData = { ...p };
-      if (updateData.atualizacao) {
-        const projeto = await this.buscarID(id);
-        projeto.atualizacao.forEach((at) => updateData.atualizacao.push(at));
+
+      const projetoData = await this.buscarID(id);
+      if (projetoData.atualizacao && updateData.atualizacao) {
+        updateData.atualizacao = [
+          ...projetoData.atualizacao,
+          ...updateData.atualizacao,
+        ];
       }
 
       await projeto.update(updateData);

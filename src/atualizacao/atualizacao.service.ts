@@ -3,6 +3,7 @@ import * as admin from 'firebase-admin';
 import { AtualizarDTO } from './DTO/atualizar.dto';
 import { AtualizacaoDTO } from './DTO/atualizacao.dto';
 import { ProjetoService } from 'src/projeto/projeto.service';
+import { AtualizarProjetoDTO } from 'src/projeto/DTO/atualizarprojeto.dto';
 
 @Injectable()
 export class AtualizacaoService {
@@ -13,21 +14,19 @@ export class AtualizacaoService {
   }
   private readonly collection = 'Atualizacoes';
 
-  async atualizar(a: AtualizarDTO[]): Promise<AtualizacaoDTO[]> {
+  async atualizar(a: AtualizarDTO): Promise<AtualizacaoDTO> {
     try {
-      const atualizacoes: AtualizacaoDTO[] = [];
-      for (const atual of a) {
-        const newAtualizacao = await this.db
-          .collection(this.collection)
-          .add(atual);
-        atualizacoes.push(await this.buscarID(newAtualizacao.id));
+      const newAtualizacao = await this.db.collection(this.collection).add(a);
 
-        await this.projetoService.atualizar(atual.projeto, {
-          atualizacao: [`${atual.projeto}`],
-        });
-      }
+      const atProjeto: AtualizarProjetoDTO = {
+        atualizacao: [a.projeto],
+      };
 
-      return atualizacoes;
+      await this.projetoService.atualizar(a.projeto, atProjeto);
+
+      const atualizacao = await this.buscarID(newAtualizacao.id);
+
+      return atualizacao;
     } catch (error) {
       throw new Error('Erro ao criar: ' + error.message);
     }
@@ -47,8 +46,6 @@ export class AtualizacaoService {
         projeto: snapshot.projeto,
         detalhes: snapshot.detalhes,
         usuario: snapshot.usuario,
-        data: snapshot.data,
-        hora: snapshot.hora,
       };
 
       return atualizacao;

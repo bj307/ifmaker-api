@@ -6,7 +6,6 @@ import {
   Param,
   Put,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import { ProjetoService } from './projeto.service';
 import { ProjetoDTO } from './DTO/projeto.dto';
@@ -38,10 +37,10 @@ export class ProjetoController {
   }
 
   @Get('meus-projetos/:id')
-  public async buscarMeusProjetos(@Param('id') id: string): Promise<ProjetoDTO[]> {
-    const projetos = await this.projetoService.buscarMeusProjetos(
-      id
-    );
+  public async buscarMeusProjetos(
+    @Param('id') id: string,
+  ): Promise<ProjetoDTO[]> {
+    const projetos = await this.projetoService.buscarMeusProjetos(id);
 
     return projetos;
   }
