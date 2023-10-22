@@ -61,12 +61,12 @@ export class AtualizacaoService {
       if (snapshot.empty) {
         return;
       }
-      const atualizacoes: AtualizacaoDTO[] = [];
 
-      snapshot.docs.forEach(async (atualizacao) => {
-        const at = await this.buscarID(atualizacao.id);
-        atualizacoes.push(at);
+      const promises = snapshot.docs.map(async (atualizacao) => {
+        return await this.buscarID(atualizacao.id);
       });
+
+      const atualizacoes = await Promise.all(promises);
       return atualizacoes;
     } catch (error) {
       throw new Error('Erro ao buscar: ' + error.message);

@@ -37,12 +37,18 @@ export class AuthService {
   }
 
   public async jwtExtractor(request: Request) {
-    const authHeader = request.headers.authorization;
+    let authHeader = request.headers.authorization;
 
     if (!authHeader) {
-      throw new BadRequestException(
-        'Bad request. Token inválido! esse bad aqui',
-      );
+      if (
+        request.body &&
+        request.body.headers &&
+        request.body.headers.Authorization
+      ) {
+        authHeader = request.body.headers.Authorization;
+      } else {
+        throw new BadRequestException('Bad request. Token inválido!');
+      }
     }
 
     const [, token] = authHeader.split(' ');
@@ -51,10 +57,18 @@ export class AuthService {
   }
 
   private static jwtExtractorr(request: Request): string {
-    const authHeader = request.headers.authorization;
+    let authHeader = request.headers.authorization;
 
     if (!authHeader) {
-      throw new BadRequestException('Bad request. Token inválido!');
+      if (
+        request.body &&
+        request.body.headers &&
+        request.body.headers.Authorization
+      ) {
+        authHeader = request.body.headers.Authorization;
+      } else {
+        throw new BadRequestException('Bad request. Token inválido!');
+      }
     }
 
     const [, token] = authHeader.split(' ');
